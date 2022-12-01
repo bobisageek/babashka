@@ -1,22 +1,24 @@
-;;  Modified / stripped version of clojure.main for use with babashka on
-;;  GraalVM.
-;;
-;   Copyright (c) Rich Hickey. All rights reserved.
-;   The use and distribution terms for this software are covered by the
-;   Eclipse Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
-;   which can be found in the file epl-v10.html at the root of this distribution.
-;   By using this software in any fashion, you are agreeing to be bound by
-;   the terms of this license.
-;   You must not remove this notice, or any other, from this software.
-(ns
-  ^{:author "Christophe Grand, Stuart Sierra",
-    :doc    "A repl helper to quickly open javadocs."}
-  babashka.impl.clojure.java.javadoc
-  (:require 
+(ns babashka.impl.clojure.java.javadoc
+  {:no-doc true}
+  (:require [babashka.impl.clojure.java.browse :refer [browse-url]]
             [clojure.java.javadoc :as javadoc]
             [sci.core :as sci]))
 
 (def javadoc-ns (sci/create-ns 'clojure.java.javadoc))
+
+(alter-meta! #'javadoc/javadoc-url dissoc :private)
+
+; almost a direct copy - refer to javadoc ns for javadoc-url
+(defn javadoc
+  "Opens a browser window displaying the javadoc for the argument.
+  Tries *local-javadocs* first, then *remote-javadocs*."
+  [class-or-object]
+  (let [^Class c (if (instance? Class class-or-object)
+                   class-or-object
+                   (class class-or-object))]
+    (if-let [url (javadoc/javadoc-url (.getName c))]
+      (browse-url url)
+      (println "Could not find Javadoc for" c))))
 
 (def javadoc-namespace 
   {'*core-java-api* (sci/copy-var javadoc/*core-java-api* javadoc-ns)
@@ -26,4 +28,4 @@
    '*feeling-lucky* (sci/copy-var javadoc/*feeling-lucky* javadoc-ns)
    'add-local-javadoc (sci/copy-var javadoc/add-local-javadoc javadoc-ns)
    'add-remote-javadoc (sci/copy-var javadoc/add-remote-javadoc javadoc-ns)
-   'javadoc (sci/copy-var javadoc/javadoc javadoc-ns)})
+   'javadoc (sci/copy-var javadoc javadoc-ns)})

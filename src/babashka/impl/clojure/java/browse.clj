@@ -25,7 +25,9 @@
       (case os
         :mac (sh "open" url)
         :linux (sh "xdg-open" url)
-        :windows (sh "cmd" "/C" "start" url)))))
+        ; windows start command takes quoted first arg as window title, 
+        ; so the empty string serves as window title, and URL is quoted for characters like '&'
+        :windows (sh "cmd" "/C" "start" "" (str \" url \"))))))
 
 (def browse-namespace
   {'*open-url-script* open-url-script

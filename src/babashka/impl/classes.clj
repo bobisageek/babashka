@@ -268,6 +268,7 @@
           java.lang.Number
           java.lang.NumberFormatException
           java.lang.Math
+          java.lang.Module
           java.lang.Object
           java.lang.Process
           java.lang.ProcessHandle
